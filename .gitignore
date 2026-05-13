@@ -1,0 +1,10 @@
+.DS_Store
+output/
+*.log
+.env
+.env.*
+.ssh/
+*.pem
+*.key
+id_ed25519
+id_ed25519.pub
