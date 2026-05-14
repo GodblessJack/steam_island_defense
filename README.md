@@ -97,4 +97,4 @@ Playable prototype. The game has a complete local loop for movement, building, w
 
 ## License
 
-No license has been selected yet. Treat this as a private prototype until a license is added.
+MIT License. This project is open for anyone to use, modify, and share.
