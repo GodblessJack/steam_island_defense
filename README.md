@@ -4,7 +4,7 @@
 
 玩家扮演小岛队长，在草地、沙滩和浅海建造防御设施，守住生命核心，并通过节奏化的学习练习获得星币和生命补给。
 
-![Gameplay screenshot](docs/screenshots/gameplay.png)
+![Gameplay screenshot](docs/screenshots/qa_cartoon_final_enemies.png)
 
 ## Features
 
