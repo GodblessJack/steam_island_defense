@@ -3,144 +3,113 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>岛屿保卫战 3D</title>
+    <title>星愿海岛乐园守护</title>
     <script>
-      if (location.protocol !== "file:" && !location.pathname.endsWith("/") && !location.pathname.split("/").pop().includes(".")) {
-        location.replace(`${location.pathname}/${location.search}${location.hash}`);
+      if (location.protocol === "file:") {
+        location.replace("http://127.0.0.1:8020/");
       }
     </script>
-    <link rel="stylesheet" href="./styles.css?v=default-audio-20260513a" />
+    <link rel="stylesheet" href="./park.css?v=park-3d-20260518-monsters-2" />
   </head>
   <body>
     <main id="app">
-      <canvas id="world" aria-label="岛屿保卫战 3D 游戏画面"></canvas>
+      <img
+        id="paintedScene"
+        src="./assets/park/starwish-overview-map.png"
+        alt=""
+        aria-hidden="true"
+      />
+      <canvas id="world" aria-label="星愿海岛乐园守护 3D 游戏"></canvas>
+      <section id="paintedMapLayer" aria-label="可交互乐园地图"></section>
+      <canvas id="minimap" width="180" height="180" aria-label="小地图"></canvas>
 
-      <section class="topbar" aria-label="游戏状态">
-        <div class="meter dev-meter"><span>FPS</span><b id="fps">--</b></div>
-        <div class="meter"><span>关卡</span><b id="level">1</b></div>
-        <div class="meter meter--heart"><span>生命</span><b id="coreHp">15</b></div>
-        <div class="resource"><span class="res-chip res-chip--star"></span><b id="stars">250</b><small>星币</small></div>
-        <div class="meter meter--learn"><span>练习</span><b id="learningEnergy">0%</b></div>
-        <div class="meter"><span>时间</span><b id="timer">80</b></div>
-        <div class="meter"><span>精灵</span><b id="sprites">0</b></div>
-      </section>
-
-      <section class="wave-card" aria-label="怪物波次">
-        <b id="mpm">0</b>
-        <span>怪物 <mark>来袭速度</mark></span>
-      </section>
-
-      <section class="utility-row" aria-label="快捷技能">
-        <button id="lightningBtn" title="闪电技能">⚡</button>
-        <button id="attackBtn" title="队长攻击">攻</button>
-        <button id="waveBtn" title="立即开怪">▶</button>
-        <button id="quizBtn" title="学习挑战">问</button>
-        <button id="audioBtn" title="关闭音乐和音效" aria-pressed="true">♫</button>
-      </section>
-
-      <p class="wave-warn" id="waveWarn">第一波怪物准备中</p>
-
-      <section id="joystick" class="joystick" aria-label="移动摇杆">
-        <span class="joystick__stick"></span>
-      </section>
-
-      <aside class="designer game-build-panel" aria-label="建造菜单">
-        <div class="designer__head">
+      <section class="hud hud--top" aria-label="状态">
+        <div class="brand">
+          <span class="brand__mark"></span>
           <div>
-            <p>岛屿保卫战</p>
-            <h1>建造菜单</h1>
+            <b>星愿海岛乐园</b>
+            <small id="modeLabel">守护视角</small>
           </div>
-          <span>先选炮台，再点岛上</span>
         </div>
+        <div class="chip chip--hp"><span></span><small>城堡能量</small><b id="hp">100</b></div>
+        <div class="chip chip--coin"><span></span><small>星币</small><b id="coins">260</b></div>
+        <div class="chip chip--learn"><span></span><small>学习能量</small><b id="learn">0%</b></div>
+        <div class="chip"><span></span><small>来袭强度</small><b id="threat">1</b></div>
+      </section>
 
-        <label class="field-label" for="partLabel">当前选择</label>
-        <div class="preview-card">
-          <div id="miniPreview" class="mini-preview" aria-hidden="true"></div>
-          <b id="selectedName">电炮台</b>
-          <span id="selectedDesc">快速射击 · 70 星币</span>
-        </div>
+      <section class="hud hud--actions" aria-label="快捷操作">
+        <button id="viewBtn" class="icon-btn" title="切换守护视角和第一人称" aria-label="切换视角">
+          <span class="action-icon action-icon--camera"></span>
+        </button>
+      </section>
 
-        <div class="building-row" role="listbox" aria-label="炮台选择">
-          <button class="preset" data-preset="spark">
-            <span class="preset-icon preset-icon--spark"></span>
-            <b>电炮台</b>
-            <small>快射 · 70</small>
-          </button>
-          <button class="preset" data-preset="frost">
-            <span class="preset-icon preset-icon--frost"></span>
-            <b>寒冰塔</b>
-            <small>减速 · 95</small>
-          </button>
-          <button class="preset" data-preset="wall">
-            <span class="preset-icon preset-icon--wall"></span>
-            <b>藤蔓陷阱</b>
-            <small>减速 · 45</small>
-          </button>
-          <button class="preset preset--locked" data-preset="cookie">
-            <span class="preset-icon preset-icon--cookie"></span>
-            <b>饼干炮</b>
-            <small>第 4 关解锁</small>
-          </button>
-        </div>
+      <section class="action-pad" aria-label="操作">
+        <button id="attackBtn" class="icon-btn" title="星杖攻击" aria-label="星杖攻击">
+          <span class="action-icon action-icon--wand"></span>
+        </button>
+        <button id="skillBtn" class="icon-btn" title="城堡闪电" aria-label="城堡闪电">
+          <span class="action-icon action-icon--bolt"></span>
+        </button>
+      </section>
 
-        <div class="part-grid hidden-editor-controls" aria-label="隐藏部件控制">
-          <button class="part is-active" data-part="base">BASE</button>
-          <button class="part is-active" data-part="core">CORE</button>
-          <button class="part is-active" data-part="barrel">BARREL</button>
-          <button class="part is-active" data-part="coil">COIL</button>
-          <button class="part is-active" data-part="crystal">CRYSTAL</button>
-          <button class="part" data-part="aura">AURA</button>
-        </div>
-
-        <button id="commitBuilding" class="commit">放置</button>
-
-        <p class="kid-tip">选一个炮台，点岛上的空地放下。糖果打破会变成小精灵，帮你一起守岛。</p>
-
-        <div class="property-grid hidden-editor-controls">
-          <label>
-            <span>Part label</span>
-            <input id="partLabel" value="Base" />
-          </label>
-          <label>
-            <span>Cost</span>
-            <input id="towerCost" value="70 stars" readonly />
-          </label>
-        </div>
-
-        <label class="field-label hidden-editor-controls">Custom color</label>
-        <input id="customColor" class="color-input hidden-editor-controls" value="#27b7ff" />
-
-        <div class="palette hidden-editor-controls" aria-label="调色板">
-          <button class="swatch is-active" data-color="#27b7ff" style="--swatch: #27b7ff"></button>
-          <button class="swatch" data-color="#80d7ff" style="--swatch: #80d7ff"></button>
-          <button class="swatch" data-color="#f6cf4c" style="--swatch: #f6cf4c"></button>
-          <button class="swatch" data-color="#ff8f5f" style="--swatch: #ff8f5f"></button>
-          <button class="swatch" data-color="#98e16f" style="--swatch: #98e16f"></button>
-          <button class="swatch" data-color="#e9eef7" style="--swatch: #e9eef7"></button>
-        </div>
+      <aside class="build-dock" aria-label="建造">
+        <button class="tower is-active" data-tower="spark" title="星光电塔">
+          <span class="tower__icon tower__icon--spark"></span><b>70</b>
+        </button>
+        <button class="tower" data-tower="frost" title="冰晶塔">
+          <span class="tower__icon tower__icon--frost"></span><b>95</b>
+        </button>
+        <button class="tower" data-tower="vine" title="藤蔓花坛">
+          <span class="tower__icon tower__icon--vine"></span><b>55</b>
+        </button>
+        <button class="tower" data-tower="cookie" title="饼干炮车">
+          <span class="tower__icon tower__icon--cookie"></span><b>125</b>
+        </button>
       </aside>
 
-      <section class="command-bar" aria-label="游戏提示">
-        <span id="statusText">右侧选炮台，点草地、沙滩或浅海建造；点炮台升级或回收。</span>
+      <section class="reticle" aria-hidden="true"><span></span></section>
+
+      <section id="prompt" class="prompt">点击岛上空地建造炮塔，或切到第一人称自由游玩。</section>
+
+      <section id="joystick" class="joystick" aria-label="移动摇杆">
+        <span></span>
+      </section>
+
+      <section id="lookPad" class="look-pad" aria-label="视角转动"></section>
+
+      <section id="quizOverlay" class="quiz-overlay" hidden>
+        <div class="quiz-card">
+          <p id="quizReason">学习补能</p>
+          <div class="quiz-card__top">
+            <h2 id="quizTitle">答题点亮城堡</h2>
+            <span id="quizProgress">1 / 5</span>
+          </div>
+          <h3 id="quizQuestion"></h3>
+          <div id="quizChoices" class="quiz-choices"></div>
+          <button id="quizClose">回到乐园</button>
+        </div>
       </section>
 
       <section id="towerMenu" class="tower-menu" hidden>
+        <div>
+          <small id="towerMenuMeta">Lv.1</small>
+          <b id="towerMenuTitle">星光电塔</b>
+        </div>
         <button id="towerMenuUpgrade">升级</button>
         <button id="towerMenuSell">回收</button>
+        <button id="towerMenuClose">取消</button>
       </section>
 
-      <section id="quizOverlay" class="quiz-overlay" aria-label="学习挑战" hidden>
-        <div class="quiz-card">
-          <p>能量练习</p>
-          <h2 id="quizTitle">答对 5 题，给生命补能量</h2>
-          <div id="quizProgress" class="quiz-progress">1 / 5</div>
-          <h3 id="quizQuestion">3 + 4 = ?</h3>
-          <div id="quizChoices" class="quiz-choices"></div>
-          <button id="quizClose" class="quiet-button">先回战场</button>
+      <section id="startCurtain" class="start-curtain">
+        <div>
+          <span class="start-curtain__badge">STARWISH PARK</span>
+          <h1>星愿海岛乐园守护</h1>
+          <p>守护城堡、建造炮塔、第一人称探索全岛，坐飞车、开卡丁车、爬山、答题补能。</p>
+          <button id="startBtn">进入乐园</button>
         </div>
       </section>
     </main>
 
-    <script type="module" src="./src/three-game.js?v=default-audio-20260513a"></script>
+    <script type="module" src="./src/park-game.js?v=park-3d-20260518-monsters-2"></script>
   </body>
 </html>
